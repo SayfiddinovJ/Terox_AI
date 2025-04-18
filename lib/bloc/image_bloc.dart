@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:terox_ai/bloc/product_event.dart';
 import 'package:terox_ai/bloc/product_state.dart';
 import 'package:terox_ai/data/model/diagnosis_model.dart';
-import 'package:terox_ai/data/model/usage_model.dart';
 import 'package:terox_ai/data/status.dart';
 import 'package:terox_ai/data/universal_data.dart';
 import 'package:terox_ai/repository/image_repo.dart';
