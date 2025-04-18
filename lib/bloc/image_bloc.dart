@@ -15,18 +15,7 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
   ImageBloc({required this.imageRepo})
     : super(
         ImageState(
-          diagnosisModel: DiagnosisModel(
-            id: '',
-            object: '',
-            created: 0,
-            model: '',
-            choicesModel: [],
-            usageModel: UsageModel(
-              promptTokens: 0,
-              completionTokens: 0,
-              totalTokens: 0,
-            ),
-          ),
+          diagnosisModel: DiagnosisModel(result: ''),
           status: FormStatus.pure,
           statusText: '',
         ),
@@ -51,9 +40,9 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
           diagnosisModel: DiagnosisModel.fromJson(data.data),
         ),
       );
-      pureImage(PureImageEvent(), emit);
     } else {
       emit(state.copyWith(status: FormStatus.failure, statusText: data.error));
+      pureImage(PureImageEvent(), emit);
     }
   }
 
@@ -62,18 +51,7 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
       state.copyWith(
         statusText: 'Pure',
         status: FormStatus.pure,
-        diagnosisModel: DiagnosisModel(
-          id: '',
-          object: '',
-          created: 0,
-          model: '',
-          choicesModel: [],
-          usageModel: UsageModel(
-            promptTokens: 0,
-            completionTokens: 0,
-            totalTokens: 0,
-          ),
-        ),
+        diagnosisModel: DiagnosisModel(result: ''),
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:terox_ai/data/model/diagnosis_model.dart';
 import 'package:terox_ai/utils/extensions/navigation.dart';
 
@@ -11,43 +13,54 @@ class InfoScreen extends StatelessWidget {
     required this.file,
   });
 
-  final File file;
+  final XFile file;
   final DiagnosisModel diagnosisModel;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Ma\'lumotlar')),
-      body: Center(
-        child: Padding(
+      // backgroundColor: Colors.white,
+      appBar: AppBar(
+        // backgroundColor: Colors.white,
+        title: const Text(
+          'Diagnostika ma\'lumotlari',
+          overflow: TextOverflow.ellipsis,
+        ),
+        scrolledUnderElevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Id: ${diagnosisModel.id}'),
-              Text('Created: ${diagnosisModel.created}'),
-              Text('Model: ${diagnosisModel.model}'),
-              Text('Object: ${diagnosisModel.object}'),
-              Text('Index: ${diagnosisModel.choicesModel[0].index}'),
-              Text(
-                'Finish Reason: ${diagnosisModel.choicesModel[0].finishReason}',
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20.r),
+                child: Image.file(File(file.path), fit: BoxFit.cover),
               ),
-              Text(
-                'Content: ${diagnosisModel.choicesModel[0].message.content}',
-              ),
-              Text('Role: ${diagnosisModel.choicesModel[0].message.role}'),
-              Text(
-                'Completion Tokens: ${diagnosisModel.usageModel.completionTokens}',
-              ),
-              Text('Prompt Tokens: ${diagnosisModel.usageModel.promptTokens}'),
-              Text('Total Tokens: ${diagnosisModel.usageModel.totalTokens}'),
               SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
-                child: const Text('Ortga qaytish'),
+              Text(
+                'Diagnostika: ${diagnosisModel.result}',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  fontSize: 22.sp,
+                ),
               ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                  child: const Text(
+                    'Ortga qaytish',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
             ],
           ),
         ),

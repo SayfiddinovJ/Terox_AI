@@ -8,12 +8,10 @@ import 'package:terox_ai/bloc/image_bloc.dart';
 import 'package:terox_ai/bloc/product_event.dart';
 import 'package:terox_ai/bloc/product_state.dart';
 import 'package:terox_ai/data/status.dart';
-import 'package:terox_ai/data/universal_data.dart';
-import 'package:terox_ai/service/image_uploader.dart';
 import 'package:terox_ai/ui/info/info_screen.dart';
 import 'package:terox_ai/utils/dialogs/loading.dart';
-import 'package:terox_ai/utils/dialogs/show_dialog.dart';
 import 'package:terox_ai/utils/extensions/navigation.dart';
+import 'package:terox_ai/utils/snack_bar/snack_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +22,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   ImagePicker picker = ImagePicker();
-  File file = File('');
+  String image = '';
+  XFile file = XFile('');
 
   @override
   Widget build(BuildContext context) {
@@ -33,44 +32,75 @@ class _HomeScreenState extends State<HomeScreen> {
         child: BlocListener<ImageBloc, ImageState>(
           listener: (context, state) {
             if (state.status == FormStatus.success) {
+              hideLoading(context: context);
+              Utils.showCustomSnackBar(
+                context: context,
+                message: 'Diagnos ma\'lumotlari muvaffaqiyatli yuklandi',
+                backgroundColor: Colors.green,
+                icon: Icons.done,
+              );
               context.push(
                 InfoScreen(diagnosisModel: state.diagnosisModel, file: file),
               );
             } else if (state.status == FormStatus.failure) {
-              showMessage(
-                message: 'Ma\'lumot olishda xatoli!',
+              hideLoading(context: context);
+              Utils.showCustomSnackBar(
                 context: context,
+                message: 'Xatolik, ma\'lumotlarni olishda xatolik',
+                backgroundColor: Colors.red,
+                icon: Icons.error_outline,
               );
+            } else if (state.status == FormStatus.loading) {
+              showLoading(context: context);
             }
           },
           child: Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
-                child: InkWell(
-                  onTap: () {
-                    showBottomSheetDialog(context);
-                  },
-                  borderRadius: BorderRadius.circular(10.r),
-                  child: Container(
-                    height: MediaQuery.of(context).size.width - 50,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
+              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Visibility(
+                    visible: image.isNotEmpty,
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(10.r),
-                      color: Colors.grey[400],
+                      child: Container(
+                        height: MediaQuery.of(context).size.width - 50,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          color: Colors.grey[400],
+                        ),
+                        child: Image.file(File(image), fit: BoxFit.cover),
+                      ),
                     ),
-                    child:
-                        file.path.isEmpty
-                            ? const Center(
-                              child: Text(
-                                'Rasmga oling yoki galereyadan tanlang',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            )
-                            : Image.file(file),
                   ),
-                ),
+                  SizedBox(height: 20.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      showBottomSheetDialog(context);
+                    },
+                    child: Text('Rasmni yuklash'),
+                  ),
+                  SizedBox(height: 10.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (image.isNotEmpty) {
+                        context.read<ImageBloc>().add(
+                          GetImageEvent(file: file),
+                        );
+                      } else {
+                        Utils.showCustomSnackBar(
+                          context: context,
+                          message: 'Xatolik, rasm yuklanmadi',
+                          backgroundColor: Colors.red,
+                          icon: Icons.error_outline,
+                        );
+                      }
+                    },
+                    child: Text('Rasmni tekshirish'),
+                  ),
+                ],
               ),
             ),
           ),
@@ -134,12 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (context.mounted && xFile != null) {
       showLoading(context: context);
-      UniversalData data = await imageUploader(xFile);
-      if (context.mounted) {
-        context.read<ImageBloc>().add(GetImageEvent(file: xFile));
-      }
-      print('Data: ${data.data}');
-      print('Data: ${data.error}');
+      setState(() {
+        file = xFile;
+        image = xFile.path;
+      });
       if (context.mounted) {
         hideLoading(context: context);
         context.pop();
@@ -155,10 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     if (context.mounted && xFile != null) {
       showLoading(context: context);
-      if (context.mounted) {
-        context.read<ImageBloc>().add(GetImageEvent(file: xFile));
-      }
-      // UniversalData data = await imageUploader(xFile);
+      setState(() {
+        file = xFile;
+        image = xFile.path;
+      });
       if (context.mounted) {
         hideLoading(context: context);
         context.pop();
